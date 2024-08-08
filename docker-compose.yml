@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  sports_data_service_db:
+    image: postgres:13-alpine3.14
+    container_name: sports_data_service_db
+    ports:
+      - '54323:5432'
+    environment:
+      POSTGRES_DB: sports_data_service_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    volumes:
+      - sports_data_service_db:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  sports_data_service_adminer:
+    image: adminer
+    container_name: 'sports_data_service_adminer'
+    restart: unless-stopped
+    depends_on:
+      - sports_data_service_db
+    ports:
+      - 8881:8080
+
+volumes:
+  sports_data_service_db:
