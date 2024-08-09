@@ -14,7 +14,5 @@ import { dataSourceOptions } from './db/date.source';
     ScheduleModule.forRoot(),
     TaskModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}

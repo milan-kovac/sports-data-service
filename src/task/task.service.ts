@@ -6,6 +6,7 @@ import { LogMethod } from 'src/shared/decorators/log.method.decorator';
 import { League } from 'src/league/league.entity';
 import { LeagueService } from '../league/league.service';
 import { TeamService } from 'src/team/team.service';
+import { KafkaProducerService } from '../kafka/kafka.producer.service';
 
 @Injectable()
 export class TasksService {
@@ -13,6 +14,7 @@ export class TasksService {
     private readonly httpService: HttpService,
     private readonly leagueService: LeagueService,
     private readonly teamService: TeamService,
+    private readonly kafkaProducerService: KafkaProducerService,
   ) {}
 
   @Cron('*/5 * * * *')
@@ -21,6 +23,17 @@ export class TasksService {
     try {
       await this.fetchAndUpsertLeagues();
       await this.fetchAndUpsertTeams();
+    } catch (e) {
+      Logger.error('An error occurred while syncing data:', e);
+    }
+  }
+
+  @Cron('*/10 * * * * *')
+  @LogMethod()
+  async beginDataTransmission(): Promise<void> {
+    try {
+      console.log('running a task every 10 second');
+      await this.kafkaProducerService.publishMessageToTopic('data-sending', 'milan je car');
     } catch (e) {
       Logger.error('An error occurred while syncing data:', e);
     }
