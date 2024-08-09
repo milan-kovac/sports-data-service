@@ -17,9 +17,10 @@ export class LeagueService {
   }
 
   @LogMethod()
-  async getLeagues(fields: (keyof League)[]): Promise<League[]> {
+  async getLeagues(select?: (keyof League)[], relations?: string[]): Promise<League[]> {
     return await this.leagueRepository.find({
-      select: fields,
+      select,
+      relations,
     });
   }
 }

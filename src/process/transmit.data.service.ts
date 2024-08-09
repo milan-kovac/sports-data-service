@@ -1,18 +1,49 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { KafkaProducerService } from 'src/kafka/kafka.producer.service';
+import { League } from 'src/league/league.entity';
+import { LeagueService } from 'src/league/league.service';
+import { CacheService } from 'src/redis/cache.service';
 import { LogMethod } from 'src/shared/decorators/log.method.decorator';
 
 @Injectable()
 export class TransmitDataService {
-  constructor(private readonly kafkaProducerService: KafkaProducerService) {}
+  private intervalId: NodeJS.Timeout;
+
+  constructor(
+    private readonly kafkaProducerService: KafkaProducerService,
+    private readonly leagueService: LeagueService,
+    private readonly cacheService: CacheService,
+  ) {}
 
   @LogMethod()
-  async transmitData(): Promise<void> {
+  async startTransmission(): Promise<void> {
     try {
-      console.log('running a task every 10 second');
-      await this.kafkaProducerService.dispatchMessage('data-sending', 'milan je car');
+      const leagues = await this.getLeagues();
+      let currentIndex = 0;
+
+      this.intervalId = setInterval(async () => {
+        if (currentIndex >= leagues.length) {
+          clearInterval(this.intervalId);
+          Logger.verbose('Transmission completed.');
+          return;
+        }
+
+        this.kafkaProducerService.dispatchMessage('data-sending', leagues[currentIndex]);
+
+        currentIndex++;
+      }, 1);
     } catch (e) {
-      Logger.error('An error occurred while syncing data:', e);
+      Logger.error('An error occurred while starting transmission:', e);
     }
+  }
+
+  @LogMethod()
+  private async getLeagues(): Promise<League[]> {
+    const data = await this.cacheService.get('leagues');
+    if (data) {
+      return data as League[];
+    }
+
+    return await this.leagueService.getLeagues([], ['teams']);
   }
 }

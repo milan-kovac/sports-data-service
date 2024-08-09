@@ -16,11 +16,9 @@ export class KafkaProducerService {
   }
 
   @LogMethod()
-  async dispatchMessage(topic: string, message: any) {
-    console.log(process.env.KAFKA_BROKER);
+  dispatchMessage(topic: string, message: any): void {
     try {
-      const result = await this.clientKafka.emit(topic, message).toPromise();
-      console.log('Message sent successfully:', result);
+      this.clientKafka.emit(topic, message);
     } catch (e) {
       Logger.error(e);
     }

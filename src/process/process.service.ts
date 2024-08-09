@@ -19,7 +19,7 @@ export class ProcessService {
 
     try {
       await this.fetchUpsertDataService.fetchUpsert();
-      await this.transmitDataService.transmitData();
+      await this.transmitDataService.startTransmission();
     } catch (e) {
       Logger.error('An error occurred while toggling functionality:', e);
     }

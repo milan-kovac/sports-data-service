@@ -60,5 +60,12 @@ services:
       KAFKA_BROKERCONNECT: kafka:9092
     restart: unless-stopped
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - '6379:6379'
+    restart: unless-stopped
+
 volumes:
   sports_data_service_db:
