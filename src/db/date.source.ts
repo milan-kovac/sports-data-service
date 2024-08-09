@@ -11,7 +11,7 @@ export const dataSourceOptions: DataSourceOptions = {
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
   synchronize: false,
-  logging: true,
+  logging: false,
   entities: [League, Team],
   migrations: [`${process.cwd()}/dist/db/migrations/*{.ts,.js}`],
   migrationsRun: true,

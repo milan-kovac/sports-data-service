@@ -6,7 +6,7 @@ import { KafkaProducerService } from './kafka.producer.service';
     ClientsModule.register([
       {
         transport: Transport.KAFKA,
-        name: 'SERVER',
+        name: 'KAFKA_PRODUCER',
         options: {
           client: {
             brokers: ['localhost:29092'],

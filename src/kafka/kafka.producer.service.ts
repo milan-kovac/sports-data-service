@@ -4,11 +4,10 @@ import { LogMethod } from 'src/shared/decorators/log.method.decorator';
 
 @Injectable()
 export class KafkaProducerService {
-  @Inject('SERVER')
+  @Inject('KAFKA_PRODUCER')
   protected readonly clientKafka: ClientKafka;
 
   async onModuleInit() {
-    console.log('Modile init');
     await this.clientKafka.connect();
   }
 
@@ -17,7 +16,7 @@ export class KafkaProducerService {
   }
 
   @LogMethod()
-  async publishMessageToTopic(topic: string, message: any) {
+  async dispatchMessage(topic: string, message: any) {
     console.log(process.env.KAFKA_BROKER);
     try {
       const result = await this.clientKafka.emit(topic, message).toPromise();
