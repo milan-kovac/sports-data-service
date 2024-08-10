@@ -1,7 +1,6 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import Redis from 'ioredis';
 import { League } from 'src/league/league.entity';
 import { LeagueService } from 'src/league/league.service';
 import { TeamService } from 'src/team/team.service';
@@ -15,7 +14,6 @@ export class ProcessService {
   private isProcessToggled = false;
 
   constructor(
-    @Inject('REDIS_SUBSCRIBER_CLIENT') private readonly redis: Redis,
     private readonly httpService: HttpService,
     private readonly leagueService: LeagueService,
     private readonly teamService: TeamService,
@@ -23,46 +21,30 @@ export class ProcessService {
     private readonly kafkaProducerService: KafkaProducerService,
   ) {}
 
-  onModuleInit(): void {
-    this.redis.subscribe('toggle-events', (err, count) => {
-      if (err) {
-        Logger.error('Failed to subscribe:', err);
-      } else {
-        Logger.log(`Subscribed to ${count} channels.`);
-      }
-    });
-
-    this.redis.on('message', async (channel, message) => {
-      if (channel === 'toggle-events') {
-        this.isProcessToggled = !this.isProcessToggled;
-        await this.handleProcessStateToggle();
-      }
-    });
-  }
-
   @LogMethod()
-  private async handleProcessStateToggle(): Promise<void> {
+  async toggleProcess(): Promise<void> {
+    this.isProcessToggled = !this.isProcessToggled;
     try {
       if (this.isProcessToggled) {
-        await this.performScheduledOperations();
+        await this.processTasks();
         const fiveMinuteInterval = setInterval(async () => {
-          this.isProcessToggled ? await this.performScheduledOperations() : clearInterval(fiveMinuteInterval);
+          this.isProcessToggled ? await this.processTasks() : clearInterval(fiveMinuteInterval);
         }, 300000);
       }
     } catch (e) {
-      Logger.error('An error occurred while toggling the process state.', e);
+      Logger.error('An error occurred while toggling the process.', e);
     }
   }
 
   @LogMethod()
-  private async performScheduledOperations(): Promise<void> {
+  private async processTasks(): Promise<void> {
     try {
       await this.updateLeaguesData();
       await this.updateTeamsData();
-      await this.ensureLeaguesCach();
-      await this.startTransmission();
+      await this.updateLeaguesCache();
+      await this.sendLeaguesToKafka();
     } catch (e) {
-      Logger.error('An error occurred during scheduled operations.', e);
+      Logger.error('An error occurred while processing tasks.', e);
     }
   }
 
@@ -76,7 +58,7 @@ export class ProcessService {
 
   @LogMethod()
   private async updateTeamsData(): Promise<void> {
-    let legues = await this.leagueService.getLeagues(['id', 'externalId'], undefined);
+    const legues = await this.leagueService.getLeagues(['id', 'externalId'], undefined);
 
     const fetchTeamsForLeague = async (league: any) => {
       const url = process.env.SPORTS_API + process.env.SPORTS_API_ALL_TEAMS + league.externalId;
@@ -92,38 +74,28 @@ export class ProcessService {
   }
 
   @LogMethod()
-  private async ensureLeaguesCach(): Promise<void> {
-    const data = await this.cacheService.get('leagues');
-    if (data) {
-      return;
-    }
+  private async updateLeaguesCache(): Promise<void> {
     const leagues = await this.leagueService.getLeagues(undefined, ['teams']);
     await this.cacheService.set('leagues', leagues, 300);
   }
 
   @LogMethod()
-  async startTransmission(): Promise<void> {
+  private async sendLeaguesToKafka(): Promise<void> {
     const leagues = await this.getLeagues();
-    let currentIndex = 0;
 
-    const tenSecondInterval = setInterval(async () => {
-      if (currentIndex >= leagues.length || !this.isProcessToggled) {
-        clearInterval(tenSecondInterval);
+    for (const league of leagues) {
+      if (!this.isProcessToggled) {
         return;
       }
-      this.kafkaProducerService.emitMessage('data-sending', leagues[currentIndex]);
 
-      currentIndex++;
-    }, 10000);
+      this.kafkaProducerService.emitMessage('data-sending', league);
+      await new Promise((resolve) => setTimeout(resolve, 10000));
+    }
   }
 
   @LogMethod()
   private async getLeagues(): Promise<League[]> {
-    const data = await this.cacheService.get('leagues');
-    if (data) {
-      return data as League[];
-    }
-
-    return await this.leagueService.getLeagues(undefined, ['teams']);
+    const cachedLeagues = await this.cacheService.get('leagues');
+    return cachedLeagues ?? (await this.leagueService.getLeagues(undefined, ['teams']));
   }
 }
