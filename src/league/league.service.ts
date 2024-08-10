@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { League } from './league.entity';
 import { LogMethod } from 'src/shared/decorators/log.method.decorator';
+import { LeagueDto } from 'src/process/helpers/helpers';
 
 @Injectable()
 export class LeagueService {
@@ -12,14 +13,15 @@ export class LeagueService {
   ) {}
 
   @LogMethod()
-  async upsert(leagues: League[]): Promise<void> {
+  async upsert(leagues: LeagueDto[]): Promise<void> {
     await this.leagueRepository.upsert(leagues, ['externalId']);
   }
 
   @LogMethod()
-  async getLeagues(fields: (keyof League)[]): Promise<League[]> {
+  async getLeagues(select?: (keyof League)[], relations?: string[]): Promise<League[]> {
     return await this.leagueRepository.find({
-      select: fields,
+      select,
+      relations,
     });
   }
 }
