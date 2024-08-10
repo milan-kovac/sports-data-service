@@ -13,21 +13,7 @@ import Redis from 'ioredis';
       },
       inject: [ConfigService],
     },
-    {
-      provide: 'REDIS_PUBLISHER_CLIENT',
-      useFactory: (configService: ConfigService) => {
-        return new Redis(configService.get<string>('REDIS_URL'));
-      },
-      inject: [ConfigService],
-    },
-    {
-      provide: 'REDIS_SUBSCRIBER_CLIENT',
-      useFactory: (configService: ConfigService) => {
-        return new Redis(configService.get<string>('REDIS_URL'));
-      },
-      inject: [ConfigService],
-    },
   ],
-  exports: ['REDIS_CACHE_CLIENT', 'REDIS_PUBLISHER_CLIENT', 'REDIS_SUBSCRIBER_CLIENT'],
+  exports: ['REDIS_CACHE_CLIENT'],
 })
 export class RedisModule {}

@@ -7,10 +7,9 @@ import { KafkaModule } from 'src/kafka/kafka.module';
 import { ProcessService } from './process.service';
 import { RedisModule } from 'src/redis/redis.module';
 import { CacheService } from 'src/redis/cache.service';
-import { PublisherService } from 'src/redis/publisher.service';
 @Module({
   imports: [HttpModule, LeagueModule, TeamModule, KafkaModule, RedisModule],
-  providers: [ProcessService, CacheService, PublisherService],
+  providers: [ProcessService, CacheService],
   controllers: [ProcessController],
 })
 export class ProcessModule {}
