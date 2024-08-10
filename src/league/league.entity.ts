@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, Unique } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, Unique, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Team } from 'src/team/team.entity';
 
 @Entity('League')
@@ -21,4 +21,10 @@ export class League {
     onDelete: 'CASCADE',
   })
   teams: Team[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

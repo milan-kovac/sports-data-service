@@ -16,11 +16,11 @@ export class KafkaProducerService {
   }
 
   @LogMethod()
-  dispatchMessage(topic: string, message: any): void {
+  emitMessage(topic: string, message: any): void {
     try {
       this.clientKafka.emit(topic, message);
     } catch (e) {
-      Logger.error(e);
+      Logger.error(`Failed to emit message to topic ${topic}`, e);
     }
   }
 }

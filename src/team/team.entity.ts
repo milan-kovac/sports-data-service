@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, Unique } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, Unique, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { League } from 'src/league/league.entity';
 
 @Entity('Team')
@@ -21,4 +21,10 @@ export class Team {
 
   @ManyToOne(() => League, (league) => league.teams)
   league: League;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

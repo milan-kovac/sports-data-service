@@ -4,7 +4,7 @@ import { LogMethod } from 'src/shared/decorators/log.method.decorator';
 
 @Injectable()
 export class CacheService {
-  constructor(@Inject('REDIS_CLIENT') private readonly redis: Redis) {}
+  constructor(@Inject('REDIS_CACHE_CLIENT') private readonly redis: Redis) {}
 
   @LogMethod()
   async set(key: string, value: any, ttl: number): Promise<void> {
