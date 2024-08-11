@@ -1,26 +1,41 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ClientKafka } from '@nestjs/microservices';
+import { Injectable, Logger } from '@nestjs/common';
+import { Kafka, Producer } from 'kafkajs';
 import { LogMethod } from 'src/shared/decorators/log.method.decorator';
 
 @Injectable()
 export class KafkaProducerService {
-  @Inject('KAFKA_PRODUCER')
-  protected readonly clientKafka: ClientKafka;
+  private readonly kafkaInstance: Kafka;
+  private producer: Producer;
 
-  async onModuleInit() {
-    await this.clientKafka.connect();
+  constructor() {
+    this.kafkaInstance = new Kafka({
+      clientId: 'kafka-client',
+      brokers: [process.env.KAFKA_BROKERS],
+      connectionTimeout: 3000,
+      authenticationTimeout: 1000,
+      reauthenticationThreshold: 10000,
+    });
+
+    this.producer = this.kafkaInstance.producer();
   }
 
-  async onModuleDestroy(): Promise<void> {
-    await this.clientKafka.close();
+  async onModuleInit() {
+    try {
+      await this.producer.connect();
+    } catch (e) {
+      Logger.error('Failed to connect to Kafka.', e);
+    }
   }
 
   @LogMethod()
-  emitMessage(topic: string, message: any): void {
+  async publish(topic: string, value: any): Promise<void> {
     try {
-      this.clientKafka.emit(topic, message);
+      await this.producer.send({
+        topic,
+        messages: [{ value: JSON.stringify(value) }],
+      });
     } catch (e) {
-      Logger.error(`Failed to emit message to topic ${topic}`, e);
+      Logger.error(`Failed to send message to topic "${topic}.`, e);
     }
   }
 }

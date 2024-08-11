@@ -88,7 +88,7 @@ export class ProcessService {
         return;
       }
 
-      this.kafkaProducerService.emitMessage('data-sending', league);
+      await this.kafkaProducerService.publish('data-sending', league);
       await new Promise((resolve) => setTimeout(resolve, 10000));
     }
   }

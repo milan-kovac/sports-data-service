@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, Unique, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Team } from 'src/team/team.entity';
 
-@Entity('League')
+@Entity('league')
 @Unique(['externalId'])
 export class League {
   @PrimaryGeneratedColumn()

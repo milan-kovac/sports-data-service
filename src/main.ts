@@ -13,9 +13,9 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
 
   // Swagger config
-  const config = new DocumentBuilder().setTitle('SQUIRE').setVersion('1.0').addBearerAuth().build();
+  const config = new DocumentBuilder().setTitle('167PLUTO').setVersion('1.0').addBearerAuth().build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('API', app, document);
 
   // Launching the application
   await app.listen(process.env.PORT);
