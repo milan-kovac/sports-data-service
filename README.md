@@ -13,10 +13,10 @@
 🚀 **Setup** 
 ---
 
-Make sure you are in the root of the server folder.
+Make sure you are in the root of the project.
 
 + Create **`.env`** file. (You can copy **`.env.example`** file)
-+ Run **`docker-compose up -d`** to setup docker container for database.
++ Run **`docker-compose up -d`**  to set up and start the required services.
 + Run **`npm install`** to install all the dependencies.
 + Run **`npm run migration:generate -- ./src/db/migrations/FirstMigration`** to create first migration.
 + Run **`npm run start`** to start server.
