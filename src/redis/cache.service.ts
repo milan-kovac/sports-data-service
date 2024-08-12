@@ -7,7 +7,7 @@ export class CacheService {
   constructor(@Inject('REDIS_CACHE_CLIENT') private readonly redis: Redis) {}
 
   @LogMethod()
-  async set(key: string, value: any, ttl: number): Promise<void> {
+  async set(key: string, value: any, ttl: number = 600): Promise<void> {
     try {
       await this.redis.set(key, JSON.stringify(value), 'EX', ttl);
     } catch (e) {

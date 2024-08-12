@@ -6,10 +6,17 @@ import { TeamModule } from 'src/team/team.module';
 import { KafkaModule } from 'src/kafka/kafka.module';
 import { ProcessService } from './process.service';
 import { RedisModule } from 'src/redis/redis.module';
-import { CacheService } from 'src/redis/cache.service';
 @Module({
-  imports: [HttpModule, LeagueModule, TeamModule, KafkaModule, RedisModule],
-  providers: [ProcessService, CacheService],
+  imports: [
+    HttpModule.register({
+      baseURL: process.env.SPORTS_API,
+    }),
+    LeagueModule,
+    TeamModule,
+    KafkaModule,
+    RedisModule,
+  ],
+  providers: [ProcessService],
   controllers: [ProcessController],
 })
 export class ProcessModule {}

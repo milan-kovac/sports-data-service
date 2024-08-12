@@ -27,8 +27,16 @@ export class KafkaProducerService {
     }
   }
 
+  async onModuleDestroy() {
+    try {
+      await this.producer.disconnect();
+    } catch (e) {
+      Logger.error('Failed to disconnect to Kafka.', e);
+    }
+  }
+
   @LogMethod()
-  async publish(topic: string, value: any): Promise<void> {
+  async send(topic: string, value: any): Promise<void> {
     try {
       await this.producer.send({
         topic,

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, Unique, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, Unique, CreateDateColumn, UpdateDateColumn, AfterInsert } from 'typeorm';
 import { Team } from 'src/team/team.entity';
 
 @Entity('league')
@@ -18,7 +18,6 @@ export class League {
 
   @OneToMany(() => Team, (team) => team.league, {
     cascade: true,
-    onDelete: 'CASCADE',
   })
   teams: Team[];
 
