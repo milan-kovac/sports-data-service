@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, Unique, CreateDateColumn, UpdateDateColumn, AfterInsert } from 'typeorm';
-import { Team } from 'src/team/team.entity';
+import { Team } from '../team/team.entity';
 
 @Entity('league')
 @Unique(['externalId'])

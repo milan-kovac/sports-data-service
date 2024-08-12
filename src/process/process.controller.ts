@@ -1,22 +1,21 @@
 import { Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateGenericResponse } from 'src/shared/responses/create.response';
+import { CreateGenericResponse } from '../shared/responses/create.response';
 import { ProcessToggleResponseDto } from './dtos/process.toggle.response.dto';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
+import { ProcessService } from './process.service';
 
 @ApiTags('Process')
 @Controller('process')
 export class ProcessController {
-  constructor(@InjectQueue('process') private readonly processQueue: Queue) {}
+  constructor(private readonly processService: ProcessService) {}
 
   @ApiOperation({
     summary: 'Toggle process.',
   })
   @ApiResponse({ type: ProcessToggleResponseDto })
   @Post('toggle')
-  toggle(): ProcessToggleResponseDto {
-    this.processQueue.add('toggleProcess', null);
-    return CreateGenericResponse(true);
+  async toggle(): Promise<ProcessToggleResponseDto> {
+    const data = await this.processService.toggle();
+    return CreateGenericResponse(data);
   }
 }

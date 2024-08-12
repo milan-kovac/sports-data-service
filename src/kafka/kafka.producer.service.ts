@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Kafka, Producer } from 'kafkajs';
-import { LogMethod } from 'src/shared/decorators/log.method.decorator';
+import { LogMethod } from '../shared/decorators/log.method.decorator';
 
 @Injectable()
 export class KafkaProducerService {

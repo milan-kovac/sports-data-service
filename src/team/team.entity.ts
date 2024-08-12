@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, Unique, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { League } from 'src/league/league.entity';
+import { League } from '../league/league.entity';
 
 @Entity('team')
 @Unique(['externalId', 'league'])

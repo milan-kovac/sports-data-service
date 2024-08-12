@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { DataSourceOptions, DataSource } from 'typeorm';
-import { League } from 'src/league/league.entity';
-import { Team } from 'src/team/team.entity';
+import { League } from '../league/league.entity';
+import { Team } from '../team/team.entity';
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
