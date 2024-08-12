@@ -12,7 +12,7 @@ import { RedisModule } from 'src/redis/redis.module';
     BullModule.registerQueue({
       name: 'process',
       connection: {
-        port: 6379,
+        port: Number(process.env.REDIS_PORT),
       },
     }),
     LeagueModule,
