@@ -34,7 +34,7 @@ export class LeagueService {
       const cachedLeagues = await this.cacheService.get('leagues');
       if (cachedLeagues) return cachedLeagues;
 
-      return await this.leagueRepository.find({ relations: ['teams'] });
+      return await this.leagueRepository.find({ relations: ['teams'], order: { id: 'ASC' } });
     } catch (e) {
       Logger.error('An error occurred while getting leagues.', e);
       throw e;

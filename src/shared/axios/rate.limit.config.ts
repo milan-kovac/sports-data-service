@@ -7,7 +7,7 @@ export function rateLimitedAxios() {
       baseURL: process.env.SPORTS_API,
     }),
     {
-      maxRequests: 100,
+      maxRequests: 99,
       perMilliseconds: 60000,
     },
   );
