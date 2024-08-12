@@ -15,7 +15,7 @@ export class ProcessController {
   })
   @ApiResponse({ type: ProcessToggleResponseDto })
   @Post('toggle')
-  toggle(): ProcessToggleResponseDto {
+  async toggle(): Promise<ProcessToggleResponseDto> {
     this.processQueue.add('toggleProcess', null);
     return CreateGenericResponse(true);
   }
