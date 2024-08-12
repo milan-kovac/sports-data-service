@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
+import { HttpModule } from '@nestjs/axios';
 import { ProcessController } from './process.controller';
 import { LeagueModule } from '../league/league.module';
 import { TeamModule } from '../team/team.module';
@@ -20,6 +21,11 @@ import { ProcessService } from './process.service';
     }),
     BullModule.registerQueueAsync({
       name: 'process',
+    }),
+    HttpModule.register({
+      baseURL: process.env.SPORTS_API,
+      timeout: 5000,
+      maxRedirects: 5,
     }),
     LeagueModule,
     TeamModule,

@@ -23,6 +23,7 @@
     "migration:run": "npm run typeorm -- migration:run"
   },
   "dependencies": {
+    "@nestjs/axios": "^3.0.2",
     "@nestjs/bull": "^10.2.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.3",
@@ -32,7 +33,6 @@
     "@nestjs/swagger": "^7.4.0",
     "@nestjs/typeorm": "^10.0.2",
     "axios": "^1.7.3",
-    "axios-rate-limit": "^1.4.0",
     "bull": "^4.16.0",
     "bullmq": "^5.12.4",
     "cron": "^3.1.7",
