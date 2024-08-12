@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Team } from './team.entity';
@@ -14,6 +14,11 @@ export class TeamService {
 
   @LogMethod()
   async upsert(teams: TeamDto[]): Promise<void> {
-    await this.teamRepository.upsert(teams, ['externalId', 'league']);
+    try {
+      await this.teamRepository.upsert(teams, ['externalId', 'league']);
+    } catch (e) {
+      Logger.error('An error occurred while upserting teams.', e);
+      throw e;
+    }
   }
 }

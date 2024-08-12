@@ -6,6 +6,7 @@ import { validateEnv } from './shared/validators/env.validator';
 import { AllExceptionsFilter } from './shared/filters/all.exceptions.filter';
 
 async function bootstrap() {
+  // Validates environment variables to ensure all required configurations are set correctly
   validateEnv();
 
   // Creating an application
