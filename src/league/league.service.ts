@@ -14,6 +14,10 @@ export class LeagueService {
     private readonly cacheService: CacheService,
   ) {}
 
+  async onModuleInit() {
+    await this.cacheService.delete('leagues');
+  }
+
   @LogMethod()
   async upsert(leagues: LeagueDataDto[]): Promise<void> {
     try {

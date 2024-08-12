@@ -1,32 +1,40 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
+import { RateLimitedAxiosInstance } from 'axios-rate-limit';
+import { Job } from 'bullmq';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { League } from 'src/league/league.entity';
 import { LeagueService } from 'src/league/league.service';
 import { KafkaProducerService } from 'src/kafka/kafka.producer.service';
 import { LogMethod } from 'src/shared/decorators/log.method.decorator';
 import { mapLeagues, mapTeam, TeamDto } from './helpers/helpers';
 import { TeamService } from 'src/team/team.service';
+import { rateLimitedAxios } from 'src/shared/axios/rate.limit.config';
 
 @Injectable()
-export class ProcessService {
+@Processor('process')
+export class ProcessService extends WorkerHost {
   private isProcessToggled = false;
-
+  private http: RateLimitedAxiosInstance;
   constructor(
-    private readonly httpService: HttpService,
     private readonly leagueService: LeagueService,
     private readonly teamService: TeamService,
     private readonly kafkaProducerService: KafkaProducerService,
-  ) {}
+  ) {
+    super();
+    this.http = rateLimitedAxios();
+  }
 
-  @LogMethod()
-  toggleProcess(): void {
-    this.isProcessToggled = !this.isProcessToggled;
-
-    if (this.isProcessToggled) {
-      this.processTasks()
-        .then(() => this.scheduleTasks())
-        .catch((e) => Logger.error('An error occurred while processing tasks.', e));
+  async process(job: Job<any, any, string>): Promise<void> {
+    if (job.name === 'toggleProcess') {
+      this.isProcessToggled = !this.isProcessToggled;
+      if (this.isProcessToggled) {
+        try {
+          this.processTasks();
+          this.scheduleTasks();
+        } catch (e) {
+          Logger.error('An error occurred while processing tasks.', e);
+        }
+      }
     }
   }
 
@@ -36,7 +44,7 @@ export class ProcessService {
       await this.fetchAndUpdateLeagues();
       await this.fetchAndUpdateTeams();
       await this.leagueService.updateCache();
-      this.sendLeaguesBatch();
+      await this.sendLeaguesBatch();
     } catch (e) {
       Logger.error('An error occurred while processing tasks.', e);
     }
@@ -45,7 +53,7 @@ export class ProcessService {
   @LogMethod()
   private async fetchAndUpdateLeagues(): Promise<void> {
     const url = process.env.SPORTS_API_ALL_LEAGUES_PATH;
-    const { data } = await firstValueFrom(this.httpService.get(url));
+    const { data } = await this.http.get(url);
     const leagues = data?.leagues ? mapLeagues(data) : [];
     await this.leagueService.upsert(leagues);
   }
@@ -60,8 +68,8 @@ export class ProcessService {
 
   @LogMethod()
   private async mapLeagueTeams(league: League): Promise<TeamDto> {
-    const url = process.env.SPORTS_API_ALL_TEAMS + league.externalId;
-    const { data } = await firstValueFrom(this.httpService.get(url));
+    const url = process.env.SPORTS_API_ALL_TEAMS_PATH + league.externalId;
+    const { data } = await this.http.get(url);
     return data?.teams.map((team: any) => mapTeam(team, league.id)) || [];
   }
 
