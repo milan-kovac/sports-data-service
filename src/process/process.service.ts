@@ -1,7 +1,7 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bull';
-import { JOB_EVERY, JOB_LEAGUES_BATCH_ID, JOB_LEAGUES_ID, JOB_OPTIONS, JOB_TEAMS_ID } from '../shared/constants/queue.jobs.constants';
+import { JOB_LEAGUES_PERIODIC_ID, JOB_LEAGUES_ID, JOB_TEAMS_ID } from '../shared/constants/queue.jobs.constants';
 
 @Injectable()
 export class ProcessService {
@@ -12,20 +12,28 @@ export class ProcessService {
   async toggle(): Promise<boolean> {
     this.isToggled = !this.isToggled;
     try {
-      this.isToggled ? await this.addJobs() : await this.removeJobs();
-
+      if (this.isToggled) {
+        await this.addJobs();
+        await this.jobScheduler();
+      } else {
+        await this.removeJobs();
+      }
       return this.isToggled;
     } catch (e) {
       Logger.error('An error occurred while toggling the process.', e);
     }
   }
+  async jobScheduler(): Promise<void> {
+    const interval = setInterval(async () => {
+      this.isToggled ? await this.addJobs() : clearInterval(interval);
+    }, 300000);
+  }
 
   async addJobs(): Promise<void> {
     try {
-      const leaguesJob = await this.processQueue.add(JOB_LEAGUES_ID, {}, JOB_OPTIONS);
-      const teamsJob = await this.processQueue.add(JOB_TEAMS_ID, { dependsOn: [leaguesJob.id] }, JOB_OPTIONS);
-      await this.processQueue.add(JOB_LEAGUES_BATCH_ID, { dependsOn: [teamsJob.id] }, JOB_OPTIONS);
-      Logger.debug('All jobs have been added to the queue.');
+      await this.processQueue.add(JOB_LEAGUES_ID);
+      await this.processQueue.add(JOB_TEAMS_ID);
+      await this.processQueue.add(JOB_LEAGUES_PERIODIC_ID);
     } catch (error) {
       Logger.error('An error occurred while adding jobs to the queue.', error);
       throw error;
@@ -34,9 +42,10 @@ export class ProcessService {
 
   async removeJobs(): Promise<void> {
     try {
-      await this.processQueue.removeRepeatable(JOB_LEAGUES_ID, JOB_EVERY);
-      await this.processQueue.removeRepeatable(JOB_TEAMS_ID, JOB_EVERY);
-      await this.processQueue.removeRepeatable(JOB_LEAGUES_BATCH_ID, JOB_EVERY);
+      const jobs = await this.processQueue.getRepeatableJobs();
+      for (const job of jobs) {
+        await this.processQueue.removeRepeatableByKey(job.key);
+      }
       await this.processQueue.clean(1);
     } catch (error) {
       Logger.error('Failed to remove jobs.', error);
