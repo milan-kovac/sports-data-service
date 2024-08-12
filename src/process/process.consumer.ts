@@ -25,7 +25,6 @@ export class ProcessConsumer {
   @Process(JOB_LEAGUES_ID)
   private async fetchAndUpdateLeagues(): Promise<void> {
     try {
-      Logger.debug('fetch-upsert-leagues');
       const url = process.env.SPORTS_API_ALL_LEAGUES_PATH;
       const { data } = await this.http.get(url);
       const leagues = data?.leagues ? mapLeagues(data) : [];
@@ -38,7 +37,6 @@ export class ProcessConsumer {
   @Process(JOB_TEAMS_ID)
   private async fetchAndUpsertTeams(): Promise<void> {
     try {
-      Logger.debug('fetch-upsert-teams');
       const leagues = await this.leagueService.getLeagues();
       const mapedTemas = await Promise.all(leagues.map((league) => this.mapLeagueTeams(league)));
       const teams = mapedTemas.flat();
@@ -51,7 +49,6 @@ export class ProcessConsumer {
   @Process(JOB_LEAGUES_BATCH_ID)
   private async sendLeaguesBatch(): Promise<void> {
     try {
-      Logger.debug('send-leagues-batch');
       const leagues = await this.leagueService.getLeagues();
 
       for (const league of leagues) {
@@ -77,8 +74,6 @@ export class ProcessConsumer {
 
   @OnQueueCleaned()
   toogleJob() {
-    Logger.log('OnQueueCleaned', this.isToggled);
     this.isToggled = !this.isToggled;
-    Logger.log('OnQueueCleaned', this.isToggled);
   }
 }
