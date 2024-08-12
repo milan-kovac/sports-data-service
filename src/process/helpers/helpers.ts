@@ -1,4 +1,4 @@
-import { League } from 'src/league/league.entity';
+import { League } from '../../league/league.entity';
 
 interface LeagueApiData {
   idLeague: string;

@@ -1,6 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
-import { LogMethod } from 'src/shared/decorators/log.method.decorator';
+import { LogMethod } from '../shared/decorators/log.method.decorator';
 
 @Injectable()
 export class CacheService {

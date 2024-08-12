@@ -2,13 +2,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import { RateLimitedAxiosInstance } from 'axios-rate-limit';
 import { Job } from 'bullmq';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { League } from 'src/league/league.entity';
-import { LeagueService } from 'src/league/league.service';
-import { KafkaProducerService } from 'src/kafka/kafka.producer.service';
-import { LogMethod } from 'src/shared/decorators/log.method.decorator';
+import { League } from '../league/league.entity';
+import { LeagueService } from '../league/league.service';
+import { KafkaProducerService } from '../kafka/kafka.producer.service';
+import { LogMethod } from '../shared/decorators/log.method.decorator';
 import { mapLeagues, mapTeam, TeamDto } from './helpers/helpers';
-import { TeamService } from 'src/team/team.service';
-import { rateLimitedAxios } from 'src/shared/axios/rate.limit.config';
+import { TeamService } from '../team/team.service';
+import { rateLimitedAxios } from '../shared/axios/rate.limit.config';
 
 @Injectable()
 @Processor('process')

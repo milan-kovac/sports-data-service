@@ -2,9 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { League } from './league.entity';
-import { LogMethod } from 'src/shared/decorators/log.method.decorator';
-import { LeagueDataDto } from 'src/process/helpers/helpers';
-import { CacheService } from 'src/redis/cache.service';
+import { LogMethod } from '../shared/decorators/log.method.decorator';
+import { LeagueDataDto } from '../process/helpers/helpers';
+import { CacheService } from '../redis/cache.service';
 
 @Injectable()
 export class LeagueService {

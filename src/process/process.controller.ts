@@ -1,6 +1,6 @@
 import { Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateGenericResponse } from 'src/shared/responses/create.response';
+import { CreateGenericResponse } from '../shared/responses/create.response';
 import { ProcessToggleResponseDto } from './dtos/process.toggle.response.dto';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
