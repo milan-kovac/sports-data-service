@@ -1,13 +1,12 @@
 import { Repository } from 'typeorm';
-import { Team } from '../../team/team.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Team } from '../../team/team.entity';
+import { Logger } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config/dist/config.module';
 import { MockTeamRepository } from './mocks/mock.team.repository';
 import { TeamService } from '../../team/team.service';
 import { upsertTemStub } from './stub/team.stub';
-import { Logger } from '@nestjs/common';
-
 describe('TeamService', () => {
   let teamRepository: Repository<Team>;
   let service: TeamService;
@@ -38,9 +37,11 @@ describe('TeamService', () => {
   describe('upsert', () => {
     const upsertData = [upsertTemStub];
     it('should be called with the appropriate parameters', async () => {
-      const spy = jest.spyOn(service, 'upsert');
+      const serviceSpy = jest.spyOn(service, 'upsert');
+      const repositorySpy = jest.spyOn(teamRepository, 'upsert').mockResolvedValue(undefined);
       await service.upsert(upsertData);
-      expect(spy).toHaveBeenCalledWith(upsertData);
+      expect(serviceSpy).toHaveBeenCalledWith(upsertData);
+      expect(repositorySpy).toHaveBeenCalledWith(upsertData, ['externalId', 'league']);
     });
     it('should log an error when upsert fails', async () => {
       const loggerErrorSpy = jest.spyOn(Logger, 'error');
